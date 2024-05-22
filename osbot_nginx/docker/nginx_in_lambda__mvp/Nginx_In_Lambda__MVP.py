@@ -46,6 +46,11 @@ class Nginx_In_Lambda__MVP(Kwargs_To_Self):
         account_id  = self.aws_config.account_id()
         return f"{account_id}.dkr.ecr.{region_name}.amazonaws.com/{self.repository_name}:latest"
 
+    def ecr_push_image(self):
+        ecr_login  = self.create_image_ecr().ecr_login()
+        push_image = self.create_image_ecr().push_image()
+        return dict(ecr_login=ecr_login, push_image=push_image)
+
     def files_in_source_files(self):
         files = {}
         for file_path in files_recursive(self.path_source_files()):

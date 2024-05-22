@@ -69,6 +69,14 @@ class test_Nginx_In_Lambda__MVP(TestCase):
                                'Volumes'        : None               ,
                                'WorkingDir'     : '/var/task'        }
 
+    def test_ecr_push_image(self):
+        result     = self.nginx_in_lambda.ecr_push_image()
+        ecr_login  = result.get('ecr_login')
+        push_image = result.get('push_image')
+        assert list_set(result)              == ['ecr_login','push_image']
+        assert ecr_login                     == {'IdentityToken': '', 'Status': 'Login Succeeded'}
+        assert push_image.get('auth_result') == {'IdentityToken': '', 'Status': 'Login Succeeded'}
+        assert list_set(push_image)          == ['auth_result', 'push_json_lines']
 
 
     def test_ecr_container(self):
