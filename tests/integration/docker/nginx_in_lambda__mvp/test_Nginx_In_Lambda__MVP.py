@@ -29,8 +29,17 @@ class test_Nginx_In_Lambda__MVP(TestCase):
     def test_build_image_on_local_docker(self):
         with self.nginx_in_lambda as _:
             result = _.build_image_on_local_docker()
+            image  = result.get('image')
             assert list_set(result) == ['build_logs', 'image', 'status', 'tags']
             assert result.get('status') == 'ok'
+            assert result.get('tags'  ) == [_.ecr_container_uri()]
+            assert list_set(image) == ['Architecture', 'Author', 'Comment', 'Config', 'Container',
+                                       'ContainerConfig', 'Created', 'DockerVersion', 'GraphDriver',
+                                       'Id', 'Metadata', 'Os', 'Parent', 'RepoDigests', 'RepoTags',
+                                       'RootFS', 'Size']
+            assert image.get('Architecture') == 'arm64'
+
+            #pprint(image)
 
 
 

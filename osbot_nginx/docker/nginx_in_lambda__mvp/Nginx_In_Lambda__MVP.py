@@ -44,7 +44,7 @@ class Nginx_In_Lambda__MVP(Kwargs_To_Self):
     def ecr_container_uri(self):
         region_name = self.aws_config.region_name()
         account_id  = self.aws_config.account_id()
-        return f"{account_id}.dkr.ecr.{region_name}.amazonaws.com/{self.repository_name}"
+        return f"{account_id}.dkr.ecr.{region_name}.amazonaws.com/{self.repository_name}:latest"
 
     def files_in_source_files(self):
         files = {}
