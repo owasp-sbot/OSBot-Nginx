@@ -1,8 +1,10 @@
 # for OSBot-AWS
-
 git+https://github.com/owasp-sbot/OSBot-AWS.git@dev
 boto3
 
+# for OSBot-Docker
+git+https://github.com/owasp-sbot/OSBot-Docker.git@dev
+docker
 
 # for setup
 setuptools
