@@ -4,7 +4,7 @@ from unittest import TestCase
 from osbot_aws.aws.boto3.View_Boto3_Rest_Calls import print_boto3_calls
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import folder_exists, folder_name, folder_files, files_names, files_list, file_exists
-from osbot_utils.utils.Misc import list_set
+from osbot_utils.utils.Misc import list_set, in_github_action
 from osbot_utils.utils.Objects import obj_info
 
 from osbot_nginx.docker.nginx_in_lambda__mvp.Nginx_In_Lambda__MVP import Nginx_In_Lambda__MVP, ENV_VARS__REQUIRED
@@ -27,17 +27,22 @@ class test_Nginx_In_Lambda__MVP(TestCase):
     # methods
 
     def test_build_image_on_local_docker(self):
+        expected_image_vars = ['Architecture', 'Author', 'Comment', 'Config', 'Container',
+                               'ContainerConfig', 'Created', 'DockerVersion', 'GraphDriver',
+                               'Id', 'Metadata', 'Os', 'Parent', 'RepoDigests', 'RepoTags',
+                               'RootFS', 'Size']
         with self.nginx_in_lambda as _:
             result = _.build_image_on_local_docker()
             image  = result.get('image')
             assert list_set(result) == ['build_logs', 'image', 'status', 'tags']
             assert result.get('status') == 'ok'
             assert result.get('tags'  ) == [_.ecr_container_uri()]
-            assert list_set(image) == ['Architecture', 'Author', 'Comment', 'Config', 'Container',
-                                       'ContainerConfig', 'Created', 'DockerVersion', 'GraphDriver',
-                                       'Id', 'Metadata', 'Os', 'Parent', 'RepoDigests', 'RepoTags',
-                                       'RootFS', 'Size']
-            assert image.get('Architecture') == 'arm64'
+            if in_github_action():
+                assert list_set(image) == expected_image_vars + ['VirtualSize']
+                assert image.get('Architecture') == 'x86'
+            else:
+                assert list_set(image) == expected_image_vars
+                assert image.get('Architecture') == 'arm64'
 
             #pprint(image)
 
