@@ -1,8 +1,11 @@
+from osbot_docker.apis.API_Docker import API_Docker
+
 from osbot_aws.apis.ECR import ECR
 
 import osbot_nginx
 from osbot_aws.AWS_Config                          import AWS_Config
 from osbot_aws.helpers.Create_Image_ECR            import Create_Image_ECR
+from osbot_nginx.utils.Docker_Util__Nginx import Docker_Util__Nginx
 from osbot_utils.base_classes.Kwargs_To_Self       import Kwargs_To_Self
 from osbot_utils.decorators.methods.cache_on_self  import cache_on_self
 from osbot_utils.utils.Files                       import path_combine, files_recursive, file_name
@@ -15,8 +18,11 @@ class Nginx_In_Lambda__Create_Image(Kwargs_To_Self):
     repository_name : str        = 'nginx-in-lambda_mvp'
 
     @cache_on_self
-    def create_image_ecr(self):
-        return Create_Image_ECR(image_name=self.repository_name, path_images=self.path_docker_image_files())
+    def tool__create_image_ecr(self):
+        kwargs = dict(image_name  = self.repository_name,
+                      image_tag   = self.ecr_repository_tag(),
+                      path_images = self.path_docker_image_files())
+        return Create_Image_ECR(**kwargs)
 
     @cache_on_self
     def ecr(self):
@@ -25,7 +31,10 @@ class Nginx_In_Lambda__Create_Image(Kwargs_To_Self):
     # methods
 
     def build_image_on_local_docker(self):
-        return self.create_image_ecr().build_image()
+        return self.tool__create_image_ecr().build_image()
+
+    def ecr_repository_tag(self):
+        return Docker_Util__Nginx().container_tag__with_arch_and_version()
 
     def ecr_repository(self):
         return self.ecr().repository_info(self.repository_name)
@@ -38,11 +47,12 @@ class Nginx_In_Lambda__Create_Image(Kwargs_To_Self):
     def ecr_container_uri(self):
         region_name = self.aws_config.region_name()
         account_id  = self.aws_config.account_id()
-        return f"{account_id}.dkr.ecr.{region_name}.amazonaws.com/{self.repository_name}:latest"
+        return f"{account_id}.dkr.ecr.{region_name}.amazonaws.com/{self.repository_name}:{self.ecr_repository_tag()}"
+
 
     def ecr_push_image(self):
-        ecr_login  = self.create_image_ecr().ecr_login()
-        push_image = self.create_image_ecr().push_image()
+        ecr_login  = self.tool__create_image_ecr().ecr_login()
+        push_image = self.tool__create_image_ecr().push_image()
         return dict(ecr_login=ecr_login, push_image=push_image)
 
     def files_in_source_files(self):

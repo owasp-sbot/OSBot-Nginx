@@ -20,11 +20,11 @@ class test_Nginx_In_Lambda__Deploy_Lambda(TestCase):
 
     def test_deploy_lambda(self):
         result = self.nginx_deploy_lambda.deploy_lambda()
-        assert result is False
+        assert result is True
 
     def test_invoke_lambda(self):
         raw_html  = self.nginx_deploy_lambda.invoke_lambda()
         html_dict = Html_To_Dict(raw_html ).convert()       # todo: handle warning/bug: [convert_to__tag__head] Unknown tag: style
         html_tags = Dict_To_Tags(html_dict).convert()       # todo: create Html_To_Tag
-        assert html_tags.head.title == 'Welcome to nginx!'
+        assert html_tags.head.title == 'Welcome to nginx! {v0.2.10}'
 

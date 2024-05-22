@@ -1,8 +1,10 @@
 from unittest import TestCase
 
 import pytest
-from osbot_utils.utils.Files import file_exists, folder_exists, folder_name, files_names, files_list
-from osbot_utils.utils.Misc import in_github_action, list_set
+from osbot_docker.apis.API_Docker   import API_Docker
+from osbot_nginx.utils.Version      import Version
+from osbot_utils.utils.Files        import file_exists, folder_exists, folder_name, files_names, files_list
+from osbot_utils.utils.Misc         import in_github_action, list_set
 
 from osbot_nginx.docker.nginx_in_lambda__mvp.Nginx_In_Lambda__Create_Image import Nginx_In_Lambda__Create_Image
 
@@ -16,18 +18,17 @@ class test_Nginx_In_Lambda__Create_Image(TestCase):
         cls.create_image = Nginx_In_Lambda__Create_Image()
 
     # utils
-    def test_create_image_ecr(self):
-        if in_github_action():
-            pytest.skip('This is not working on GH actions')            # todo: (this create is working but not the push) figure out why the push is not working on GH actions, I think it is to do with the way the latest tag (i.e. version is applied)
-
+    def test_tool__create_image_ecr(self):
         with self.create_image as _:
-            create_image_ecr = _.create_image_ecr()
+            create_image_ecr = _.tool__create_image_ecr()
             assert create_image_ecr.path_image() == _.path_source_files()
             assert create_image_ecr.image_name   == _.repository_name
 
     # methods
 
     def test_build_image_on_local_docker(self):
+        if in_github_action():
+            pytest.skip('This is not working on GH actions')            # todo: (this create is working but not the push) figure out why the push is not working on GH actions, I think it is to do with the way the latest tag (i.e. version is applied)
         expected_image_vars = ['Architecture', 'Author', 'Comment', 'Config', 'Container',
                                'ContainerConfig', 'Created', 'DockerVersion', 'GraphDriver',
                                'Id', 'Metadata', 'Os', 'Parent', 'RepoDigests', 'RepoTags',
@@ -70,6 +71,12 @@ class test_Nginx_In_Lambda__Create_Image(TestCase):
                                'User'           : ''                 ,
                                'Volumes'        : None               ,
                                'WorkingDir'     : '/var/task'        }
+
+    def test_ecr_container_tag(self):
+        container_tag = self.create_image.ecr_repository_tag()
+        docker_arch   = API_Docker().client_api_version_raw().get('Arch')
+        repo_version  = Version().value()
+        assert container_tag == f'{docker_arch}_{repo_version}'
 
     def test_ecr_push_image(self):
         if in_github_action():
