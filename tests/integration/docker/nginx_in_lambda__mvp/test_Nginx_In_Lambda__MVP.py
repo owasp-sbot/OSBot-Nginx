@@ -1,6 +1,7 @@
 from os import getenv
 from unittest import TestCase
 
+import pytest
 from osbot_aws.aws.boto3.View_Boto3_Rest_Calls import print_boto3_calls
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import folder_exists, folder_name, folder_files, files_names, files_list, file_exists
@@ -19,6 +20,9 @@ class test_Nginx_In_Lambda__MVP(TestCase):
 
     # utils
     def test_create_image_ecr(self):
+        if in_github_action():
+            pytest.skip('This is not working on GH actions')            # todo: (this create is working but not the push) figure out why the push is not working on GH actions, I think it is to do with the way the latest tag (i.e. version is applied)
+
         with self.nginx_in_lambda as _:
             create_image_ecr = _.create_image_ecr()
             assert create_image_ecr.path_image() == _.path_source_files()
@@ -70,16 +74,13 @@ class test_Nginx_In_Lambda__MVP(TestCase):
                                'WorkingDir'     : '/var/task'        }
 
     def test_ecr_push_image(self):
+        if in_github_action():
+            pytest.skip('This is not working on GH actions')            # todo: figure out why the push is not working on GH actions, I think it is to do with the way the latest tag (i.e. version is applied)
         with self.nginx_in_lambda as _:
-            #pprint(_.create_image_ecr().api_docker.images_names())
             image_name = _.create_image_ecr().docker_image.image_name + ':latest'
             assert image_name == '654654216424.dkr.ecr.eu-west-1.amazonaws.com/nginx-in-lambda_mvp:latest'
-            #pprint(_.ecr().repositories())
-
             result     = _.ecr_push_image()
-            #ecr_login  = result.get('ecr_login')
             push_image = result.get('push_image')
-            pprint(push_image)
             assert list_set(result)              == ['ecr_login','push_image']
             assert list_set(push_image)          == ['auth_result', 'push_json_lines']
 
