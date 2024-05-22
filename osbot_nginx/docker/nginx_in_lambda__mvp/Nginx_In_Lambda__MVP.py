@@ -1,9 +1,9 @@
-from osbot_aws.AWS_Config import AWS_Config
-from osbot_aws.apis.ECR import ECR
-from osbot_aws.helpers.Create_Image_ECR import Create_Image_ECR
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.decorators.methods.cache_on_self import cache_on_self
-from osbot_utils.utils.Files import path_combine, files_list, files_recursive, file_name
+from osbot_aws.AWS_Config                           import AWS_Config
+from osbot_aws.apis.ECR                             import ECR
+from osbot_aws.helpers.Create_Image_ECR             import Create_Image_ECR
+from osbot_utils.base_classes.Kwargs_To_Self        import Kwargs_To_Self
+from osbot_utils.decorators.methods.cache_on_self   import cache_on_self
+from osbot_utils.utils.Files                        import path_combine, files_list, files_recursive, file_name
 
 import osbot_nginx
 from osbot_nginx.docker import nginx_in_lambda__mvp

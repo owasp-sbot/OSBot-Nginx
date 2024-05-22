@@ -27,16 +27,10 @@ class test_Nginx_In_Lambda__MVP(TestCase):
     # methods
 
     def test_build_image_on_local_docker(self):
-        from docker.errors import DockerException
         with self.nginx_in_lambda as _:
             result = _.build_image_on_local_docker()
-
-            exception = result.get('exception')
-            assert result == { 'error'    : 'Error while fetching server API version: Not supported URL scheme http+docker',
-                               'exception': exception   ,
-                               'status'   : 'error'     }
-            assert type(exception) is DockerException
-            assert exception.args == ("Error while fetching server API version: Not supported URL scheme http+docker",)
+            assert list_set(result) == ['build_logs', 'image', 'status', 'tags']
+            assert result.get('status') == 'ok'
 
 
 
