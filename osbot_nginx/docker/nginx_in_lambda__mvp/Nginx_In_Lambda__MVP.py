@@ -17,12 +17,21 @@ class Nginx_In_Lambda__MVP(Kwargs_To_Self):
     aws_config     : AWS_Config
     repository_name : str        = 'nginx-in-lambda_mvp'
 
+    # utils
+
     @cache_on_self
     def ecr(self):
         return ECR()
 
+    @cache_on_self
     def create_image_ecr(self):
         return Create_Image_ECR(image_name=self.repository_name, path_images=self.path_docker_image_files())
+
+    # methods
+
+    def build_image_on_local_docker(self):
+        return self.create_image_ecr().build_image()
+
 
     def ecr_repository(self):
         return self.ecr().repository_info(self.repository_name)

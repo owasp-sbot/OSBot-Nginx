@@ -17,15 +17,28 @@ class test_Nginx_In_Lambda__MVP(TestCase):
     def setUpClass(cls):
         cls.nginx_in_lambda = Nginx_In_Lambda__MVP()
 
-    def test_check_env_variables(self):
-        for env_var_name in ENV_VARS__REQUIRED:
-            assert getenv(env_var_name) is not None , f'Env var was not configured: {env_var_name}'
-
+    # utils
     def test_create_image_ecr(self):
         with self.nginx_in_lambda as _:
             create_image_ecr = _.create_image_ecr()
             assert create_image_ecr.path_image() == _.path_source_files()
             assert create_image_ecr.image_name   == _.repository_name
+
+    # methods
+
+    def test_build_image_on_local_docker(self):
+        from docker.errors import DockerException
+        with self.nginx_in_lambda as _:
+            result = _.build_image_on_local_docker()
+
+            exception = result.get('exception')
+            assert result == { 'error'    : 'Error while fetching server API version: Not supported URL scheme http+docker',
+                               'exception': exception   ,
+                               'status'   : 'error'     }
+            assert type(exception) is DockerException
+            assert exception.args == ("Error while fetching server API version: Not supported URL scheme http+docker",)
+
+
 
     def test_ecr_container(self):
         ecr_container = self.nginx_in_lambda.ecr_repository()
@@ -57,3 +70,8 @@ class test_Nginx_In_Lambda__MVP(TestCase):
             assert target_repo_info.get('repositoryName') == _.repository_name
 
             assert target_repo_info.get('repositoryArn' ) == _.ecr_repository_arn()
+
+    # misc tests (not directly mapped to functions)
+    def test___check_env_variables(self):
+        for env_var_name in ENV_VARS__REQUIRED:
+            assert getenv(env_var_name) is not None , f'Env var was not configured: {env_var_name}'
