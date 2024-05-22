@@ -34,17 +34,40 @@ class test_Nginx_In_Lambda__MVP(TestCase):
         with self.nginx_in_lambda as _:
             result = _.build_image_on_local_docker()
             image  = result.get('image')
+            config = image.get('Config')
             assert list_set(result) == ['build_logs', 'image', 'status', 'tags']
             assert result.get('status') == 'ok'
             assert result.get('tags'  ) == [_.ecr_container_uri()]
             if in_github_action():
                 assert list_set(image) == expected_image_vars + ['VirtualSize']
-                assert image.get('Architecture') == 'x86'
+                assert image.get('Architecture') == 'amd64'
             else:
                 assert list_set(image) == expected_image_vars
                 assert image.get('Architecture') == 'arm64'
 
-            #pprint(image)
+            assert config == { 'AttachStderr': False,
+                               'AttachStdin': False,
+                               'AttachStdout': False,
+                               'Cmd': None,
+                               'Domainname': '',
+                               'Entrypoint': ['/bin/sh', '-c', '/var/runtime/bootstrap'],
+                               'Env': [ 'LANG=en_US.UTF-8',
+                                        'TZ=:/etc/localtime',
+                                        'PATH=/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin',
+                                        'LD_LIBRARY_PATH=/var/lang/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib',
+                                        'LAMBDA_TASK_ROOT=/var/task',
+                                        'LAMBDA_RUNTIME_DIR=/var/runtime'],
+                               'ExposedPorts': {'8080/tcp': {}},
+                               'Hostname': '',
+                               'Image': 'sha256:1bde0c3decaaae666a6038e8fa8a331b5c87c0420f65cffda64414cbdd4bba6e',
+                               'Labels': None,
+                               'OnBuild': None,
+                               'OpenStdin': False,
+                               'StdinOnce': False,
+                               'Tty': False,
+                               'User': '',
+                               'Volumes': None,
+                               'WorkingDir': '/var/task'}
 
 
 
