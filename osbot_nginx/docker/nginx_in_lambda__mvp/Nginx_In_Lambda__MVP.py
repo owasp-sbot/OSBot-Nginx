@@ -24,8 +24,6 @@ class Nginx_In_Lambda__MVP(Kwargs_To_Self):
         return nginx_create_image
 
 
-
-
     def setup(self):
         target_repo_info = self.ecr().repository_info(self.repository_name)
         if not target_repo_info :
