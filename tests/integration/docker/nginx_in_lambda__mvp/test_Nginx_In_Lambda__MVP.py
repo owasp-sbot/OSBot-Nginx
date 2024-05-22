@@ -71,15 +71,17 @@ class test_Nginx_In_Lambda__MVP(TestCase):
 
     def test_ecr_push_image(self):
         with self.nginx_in_lambda as _:
-            pprint(_.create_image_ecr().api_docker.images_names())
+            #pprint(_.create_image_ecr().api_docker.images_names())
             image_name = _.create_image_ecr().docker_image.image_name
             assert image_name == '654654216424.dkr.ecr.eu-west-1.amazonaws.com/nginx-in-lambda_mvp'
+            pprint(_.ecr().repositories())
 
-        return
-        ecr_login  = result.get('ecr_login')
-        push_image = result.get('push_image')
-        assert list_set(result)              == ['ecr_login','push_image']
-        assert list_set(push_image)          == ['auth_result', 'push_json_lines']
+            result     = _.ecr_push_image()
+            #ecr_login  = result.get('ecr_login')
+            push_image = result.get('push_image')
+            pprint(push_image)
+            #assert list_set(result)              == ['ecr_login','push_image']
+            #assert list_set(push_image)          == ['auth_result', 'push_json_lines']
 
 
     def test_ecr_container(self):
