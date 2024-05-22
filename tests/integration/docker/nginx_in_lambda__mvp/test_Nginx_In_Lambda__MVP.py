@@ -18,93 +18,7 @@ class test_Nginx_In_Lambda__MVP(TestCase):
     def setUpClass(cls):
         cls.nginx_in_lambda = Nginx_In_Lambda__MVP()
 
-    # utils
-    def test_create_image_ecr(self):
-        if in_github_action():
-            pytest.skip('This is not working on GH actions')            # todo: (this create is working but not the push) figure out why the push is not working on GH actions, I think it is to do with the way the latest tag (i.e. version is applied)
 
-        with self.nginx_in_lambda as _:
-            create_image_ecr = _.create_image_ecr()
-            assert create_image_ecr.path_image() == _.path_source_files()
-            assert create_image_ecr.image_name   == _.repository_name
-
-    # methods
-
-    def test_build_image_on_local_docker(self):
-        expected_image_vars = ['Architecture', 'Author', 'Comment', 'Config', 'Container',
-                               'ContainerConfig', 'Created', 'DockerVersion', 'GraphDriver',
-                               'Id', 'Metadata', 'Os', 'Parent', 'RepoDigests', 'RepoTags',
-                               'RootFS', 'Size']
-        with self.nginx_in_lambda as _:
-            result = _.build_image_on_local_docker()
-            image  = result.get('image')
-            config = image.get('Config')
-            assert list_set(result) == ['build_logs', 'image', 'status', 'tags']
-            assert result.get('status') == 'ok'
-            assert result.get('tags'  ) == [_.ecr_container_uri()]
-            if in_github_action():
-                assert list_set(image) == expected_image_vars + ['VirtualSize']
-                assert image.get('Architecture') == 'amd64'
-            else:
-                assert list_set(image) == expected_image_vars
-                assert image.get('Architecture') == 'arm64'
-
-            assert config == { 'AttachStderr'   : False             ,
-                               'AttachStdin'    : False             ,
-                               'AttachStdout'   : False             ,
-                               'Cmd'            : None              ,
-                               'Domainname'     : ''                ,
-                               'Entrypoint'     : ['/bin/sh', '-c', '/var/runtime/bootstrap'],
-                               'Env'            : [ 'LANG=en_US.UTF-8',
-                                                    'TZ=:/etc/localtime',
-                                                    'PATH=/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin',
-                                                    'LD_LIBRARY_PATH=/var/lang/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib',
-                                                    'LAMBDA_TASK_ROOT=/var/task',
-                                                    'LAMBDA_RUNTIME_DIR=/var/runtime'],
-                               'ExposedPorts'   : {'8080/tcp': {}}  ,
-                               'Hostname'       : ''                 ,
-                               'Image'          : config.get('Image'),
-                               'Labels'         : None               ,
-                               'OnBuild'        : None               ,
-                               'OpenStdin'      : False              ,
-                               'StdinOnce'      : False              ,
-                               'Tty'            : False              ,
-                               'User'           : ''                 ,
-                               'Volumes'        : None               ,
-                               'WorkingDir'     : '/var/task'        }
-
-    def test_ecr_push_image(self):
-        if in_github_action():
-            pytest.skip('This is not working on GH actions')            # todo: figure out why the push is not working on GH actions, I think it is to do with the way the latest tag (i.e. version is applied)
-        with self.nginx_in_lambda as _:
-            image_name = _.create_image_ecr().docker_image.image_name + ':latest'
-            assert image_name == '654654216424.dkr.ecr.eu-west-1.amazonaws.com/nginx-in-lambda_mvp:latest'
-            result     = _.ecr_push_image()
-            push_image = result.get('push_image')
-            assert list_set(result)              == ['ecr_login','push_image']
-            assert list_set(push_image)          == ['auth_result', 'push_json_lines']
-
-
-    def test_ecr_container(self):
-        ecr_container = self.nginx_in_lambda.ecr_repository()
-
-        assert list_set(ecr_container) == ['createdAt', 'encryptionConfiguration', 'imageScanningConfiguration',
-                                           'imageTagMutability', 'registryId', 'repositoryArn', 'repositoryName',
-                                           'repositoryUri']
-
-    def test_files_in_source_files(self):
-        expected_files = ['Dockerfile', 'build-and-publish-docker-image.sh', 'index.html', 'nginx.conf']
-        files          = self.nginx_in_lambda.files_in_source_files()
-
-        assert list_set(files) == expected_files
-        for file_path in files.values():
-            assert file_exists(file_path)
-
-    def test_path_source_files(self):
-        path_source_files = self.nginx_in_lambda.path_source_files()
-        assert folder_exists(path_source_files)
-        assert folder_name  (path_source_files) == self.nginx_in_lambda.repository_name
-        assert 'Dockerfile' in files_names(files_list(path_source_files, pattern='*'))
 
 
     def test_setup(self):
@@ -113,8 +27,7 @@ class test_Nginx_In_Lambda__MVP(TestCase):
             target_repo_info = setup_data.get('target_repo_info')
             assert list_set(setup_data) == ['target_repo_info']
             assert target_repo_info.get('repositoryName') == _.repository_name
-
-            assert target_repo_info.get('repositoryArn' ) == _.ecr_repository_arn()
+            assert target_repo_info.get('repositoryArn' ) == _.util__nginx_create_image().ecr_repository_arn()
 
     # misc tests (not directly mapped to functions)
     def test___check_env_variables(self):
