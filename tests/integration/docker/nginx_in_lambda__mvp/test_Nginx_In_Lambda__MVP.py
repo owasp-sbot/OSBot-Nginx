@@ -4,7 +4,7 @@ from unittest import TestCase
 from osbot_aws.aws.boto3.View_Boto3_Rest_Calls import print_boto3_calls
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import folder_exists, folder_name, folder_files, files_names, files_list, file_exists
-from osbot_utils.utils.Misc import list_set, in_github_action
+from osbot_utils.utils.Misc import list_set, in_github_action, timestamp_to_str
 from osbot_utils.utils.Objects import obj_info
 
 from osbot_nginx.docker.nginx_in_lambda__mvp.Nginx_In_Lambda__MVP import Nginx_In_Lambda__MVP, ENV_VARS__REQUIRED
@@ -70,8 +70,11 @@ class test_Nginx_In_Lambda__MVP(TestCase):
                                'WorkingDir'     : '/var/task'        }
 
     def test_ecr_push_image(self):
-        result     = self.nginx_in_lambda.ecr_push_image()
-        pprint(result)
+        with self.nginx_in_lambda as _:
+            pprint(_.create_image_ecr().api_docker.images_names())
+            image_name = _.create_image_ecr().docker_image.image_name
+            assert image_name == '654654216424.dkr.ecr.eu-west-1.amazonaws.com/nginx-in-lambda_mvp'
+
         return
         ecr_login  = result.get('ecr_login')
         push_image = result.get('push_image')
