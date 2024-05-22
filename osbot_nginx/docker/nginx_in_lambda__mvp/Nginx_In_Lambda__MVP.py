@@ -3,6 +3,7 @@ from osbot_aws.apis.ECR                                                     impo
 from osbot_utils.base_classes.Kwargs_To_Self                                import Kwargs_To_Self
 from osbot_utils.decorators.methods.cache_on_self                           import cache_on_self
 from osbot_nginx.docker.nginx_in_lambda__mvp.Nginx_In_Lambda__Create_Image  import Nginx_In_Lambda__Create_Image
+from osbot_nginx.docker.nginx_in_lambda__mvp.Nginx_In_Lambda__Deploy_Lambda import Nginx_In_Lambda__Deploy_Lambda
 
 ENV_VARS__REQUIRED = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY',
                       'AWS_ACCOUNT_ID'   , 'AWS_DEFAULT_REGION'   ]
@@ -22,6 +23,10 @@ class Nginx_In_Lambda__MVP(Kwargs_To_Self):
     def util__nginx_create_image(self):
         nginx_create_image = Nginx_In_Lambda__Create_Image(repository_name=self.repository_name)
         return nginx_create_image
+
+    def util__nginx_deploy_lambda(self):
+        nginx_deploy_lambda = Nginx_In_Lambda__Deploy_Lambda(repository_name=self.repository_name)
+        return nginx_deploy_lambda
 
 
     def setup(self):
