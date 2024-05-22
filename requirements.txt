@@ -1,8 +1,11 @@
 # for OSBot-AWS
-
 git+https://github.com/owasp-sbot/OSBot-AWS.git@dev
 boto3
 
+# for OSBot-Docker
+git+https://github.com/owasp-sbot/OSBot-Docker.git@dev
+git+https://github.com/docker/docker-py.git
+#docker     # can't use this until this fix is propagated https://github.com/docker/docker-py/pull/3257
 
 # for setup
 setuptools
