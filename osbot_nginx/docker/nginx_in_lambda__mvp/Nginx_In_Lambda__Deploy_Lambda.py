@@ -19,7 +19,8 @@ class Nginx_In_Lambda__Deploy_Lambda(Kwargs_To_Self):
         image_uri          = f'{account_id}.dkr.ecr.{region_name}.amazonaws.com/{self.repository_name}:{repository_tag}'
         deploy_lambda      = Deploy_Lambda(self.repository_name)
         deploy_lambda.set_container_image(image_uri)
-        deploy_lambda.lambda_function().architecture = 'arm64'
+        if 'arm64' in repository_tag:                                   # update arch if arm64
+            deploy_lambda.lambda_function().architecture = 'arm64'      # default is x86_64 (which is amd64)
         return deploy_lambda
 
     def deploy_lambda(self):

@@ -29,6 +29,7 @@ class test_Nginx_In_Lambda__Create_Image(TestCase):
     # methods
 
     def test_build_image_on_local_docker(self):
+        self.create_image.update_nginx_index_with_current_version()     # update html file so that all builds are unique
         # if in_github_action():
         #     pytest.skip('This is not working on GH actions')            # todo: (this create is working but not the push) figure out why the push is not working on GH actions, I think it is to do with the way the latest tag (i.e. version is applied)
         expected_image_vars = ['Architecture', 'Author', 'Comment', 'Config', 'Container',
@@ -116,7 +117,7 @@ class test_Nginx_In_Lambda__Create_Image(TestCase):
         assert file_exists(path_nginx_index_file)
         assert 'Welcome to nginx!' in file_contents(path_nginx_index_file)
 
-    def test_update_nginx_index_with_current_version(self):
+    def test_set_nginx_index_with_current_version(self):
         with self.create_image as _:
             path_index_file = _.path_nginx_index_file()
             updated_title   = _.value_of_index_html_updated_title()
