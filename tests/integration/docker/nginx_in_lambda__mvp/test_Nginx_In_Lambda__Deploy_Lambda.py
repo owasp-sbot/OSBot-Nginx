@@ -21,7 +21,7 @@ class test_Nginx_In_Lambda__Deploy_Lambda(TestCase):
 
     def test_deploy_lambda(self):
         result = self.nginx_deploy_lambda.deploy_lambda()
-        assert result is True
+        assert result == 'Successful'
 
     def test_invoke_lambda(self):
         raw_html  = self.nginx_deploy_lambda.invoke_lambda()

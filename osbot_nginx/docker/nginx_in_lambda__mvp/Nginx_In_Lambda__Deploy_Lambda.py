@@ -27,8 +27,9 @@ class Nginx_In_Lambda__Deploy_Lambda(Kwargs_To_Self):
         util_deploy_lambda = self.util_deploy_lambda()
         #return util_deploy_lambda.lambda_function().create()
         update_result = util_deploy_lambda.package.update()
-        pprint(update_result)
-        return util_deploy_lambda.deploy()
+        if update_result:
+            last_update_status = util_deploy_lambda.lambda_function().wait_for_function_update_to_complete()
+            return last_update_status
 
     def invoke_lambda(self, path='/', return_logs=False):
         payload = { "rawPath"       : path                          ,
