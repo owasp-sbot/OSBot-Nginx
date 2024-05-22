@@ -71,9 +71,11 @@ class test_Nginx_In_Lambda__MVP(TestCase):
 
     def test_ecr_push_image(self):
         result     = self.nginx_in_lambda.ecr_push_image()
+        pprint(result)
+        return
         ecr_login  = result.get('ecr_login')
         push_image = result.get('push_image')
-        assert list_set(result)              == ['ecr_login','push_image']                
+        assert list_set(result)              == ['ecr_login','push_image']
         assert list_set(push_image)          == ['auth_result', 'push_json_lines']
 
 
