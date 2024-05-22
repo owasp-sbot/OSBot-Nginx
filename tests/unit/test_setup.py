@@ -7,18 +7,18 @@ from unittest.mock                  import patch
 
 from osbot_utils.utils.Files import parent_folder
 
-import osbot_xyz
+import osbot_nginx
 
-from osbot_xyz.utils.utils.Version import Version
+from osbot_nginx.utils.utils.Version import Version
 
-EXPECTED_PACKAGES = ['osbot_xyz']
+EXPECTED_PACKAGES = ['osbot_nginx']
 
 class test_setup(TestCase):
 
 
     @patch('setuptools.setup')                                                                    # this prevents the sys.exit() from being called
     def test_setup(self, mock_setup):
-        parent_path     = parent_folder(osbot_xyz.path)                                     # get the root of the repo
+        parent_path     = parent_folder(osbot_nginx.path)                                     # get the root of the repo
         setup_file_path = os.path.join(parent_path, 'setup.py')                                   # get the setup.py file
         assert os.path.exists(setup_file_path)                                                    # make sure it exists
 
@@ -28,8 +28,8 @@ class test_setup(TestCase):
         spec.loader.exec_module(setup)
 
         args, kwargs = mock_setup.call_args                                                       # capture the params used on the setup call
-        assert kwargs.get('name'             ) == 'osbot_xyz'
-        assert kwargs.get('description'      ) == 'OSBot - XYZ'
+        assert kwargs.get('name'             ) == 'osbot_nginx'
+        assert kwargs.get('description'      ) == 'OSBot - Nginx'
         assert kwargs.get('long_description' ) == setup.long_description
         assert kwargs.get('version'          ) == Version().value()
         assert sorted(kwargs.get('packages' )) == sorted(EXPECTED_PACKAGES)
