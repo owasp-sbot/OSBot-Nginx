@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from osbot_aws.aws.boto3.Capture_Boto3_Error import capture_boto3_error
 from osbot_aws.aws.iam.Capture_IAM_Exception import capture_iam_exception
+from osbot_nginx.utils.Version import Version
 from osbot_utils.decorators.methods.capture_exception import capture_exception
 from osbot_utils.helpers.html.Dict_To_Tags import Dict_To_Tags
 from osbot_utils.helpers.html.Html_To_Dict import Html_To_Dict
@@ -24,7 +25,8 @@ class test_Nginx_In_Lambda__Deploy_Lambda(TestCase):
 
     def test_invoke_lambda(self):
         raw_html  = self.nginx_deploy_lambda.invoke_lambda()
-        html_dict = Html_To_Dict(raw_html ).convert()       # todo: handle warning/bug: [convert_to__tag__head] Unknown tag: style
-        html_tags = Dict_To_Tags(html_dict).convert()       # todo: create Html_To_Tag
-        assert html_tags.head.title == 'Welcome to nginx! {v0.2.10}'
+        html_dict = Html_To_Dict(raw_html ).convert()
+        html_tags = Dict_To_Tags(html_dict).convert()
+        version   = Version().value()
+        assert html_tags.head.title == f'Welcome to nginx! {version}'
 

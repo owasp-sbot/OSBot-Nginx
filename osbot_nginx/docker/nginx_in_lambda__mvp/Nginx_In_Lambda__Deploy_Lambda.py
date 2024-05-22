@@ -1,3 +1,5 @@
+from osbot_utils.utils.Dev import pprint
+
 from osbot_aws.AWS_Config                       import AWS_Config
 from osbot_aws.deploy.Deploy_Lambda             import Deploy_Lambda
 from osbot_nginx.utils.Docker_Util__Nginx import Docker_Util__Nginx
@@ -23,6 +25,8 @@ class Nginx_In_Lambda__Deploy_Lambda(Kwargs_To_Self):
     def deploy_lambda(self):
         util_deploy_lambda = self.util_deploy_lambda()
         #return util_deploy_lambda.lambda_function().create()
+        update_result = util_deploy_lambda.package.update()
+        pprint(update_result)
         return util_deploy_lambda.deploy()
 
     def invoke_lambda(self, path='/', return_logs=False):

@@ -2,8 +2,10 @@ from unittest import TestCase
 
 import pytest
 from osbot_docker.apis.API_Docker   import API_Docker
+from osbot_utils.utils.Dev import pprint
+
 from osbot_nginx.utils.Version      import Version
-from osbot_utils.utils.Files        import file_exists, folder_exists, folder_name, files_names, files_list
+from osbot_utils.utils.Files import file_exists, folder_exists, folder_name, files_names, files_list, file_contents
 from osbot_utils.utils.Misc         import in_github_action, list_set
 
 from osbot_nginx.docker.nginx_in_lambda__mvp.Nginx_In_Lambda__Create_Image import Nginx_In_Lambda__Create_Image
@@ -27,8 +29,8 @@ class test_Nginx_In_Lambda__Create_Image(TestCase):
     # methods
 
     def test_build_image_on_local_docker(self):
-        if in_github_action():
-            pytest.skip('This is not working on GH actions')            # todo: (this create is working but not the push) figure out why the push is not working on GH actions, I think it is to do with the way the latest tag (i.e. version is applied)
+        # if in_github_action():
+        #     pytest.skip('This is not working on GH actions')            # todo: (this create is working but not the push) figure out why the push is not working on GH actions, I think it is to do with the way the latest tag (i.e. version is applied)
         expected_image_vars = ['Architecture', 'Author', 'Comment', 'Config', 'Container',
                                'ContainerConfig', 'Created', 'DockerVersion', 'GraphDriver',
                                'Id', 'Metadata', 'Os', 'Parent', 'RepoDigests', 'RepoTags',
@@ -39,7 +41,7 @@ class test_Nginx_In_Lambda__Create_Image(TestCase):
             config = image.get('Config')
             assert list_set(result) == ['build_logs', 'image', 'status', 'tags']
             assert result.get('status') == 'ok'
-            assert result.get('tags'  ) == [_.ecr_container_uri()]
+            assert _.ecr_container_uri() in result.get('tags'  )
 
             if in_github_action():
                 assert list_set(image) == expected_image_vars + ['VirtualSize']
@@ -79,8 +81,8 @@ class test_Nginx_In_Lambda__Create_Image(TestCase):
         assert container_tag == f'{docker_arch}_{repo_version}'
 
     def test_ecr_push_image(self):
-        if in_github_action():
-            pytest.skip('This is not working on GH actions')            # todo: figure out why the push is not working on GH actions, I think it is to do with the way the latest tag (i.e. version is applied)
+        # if in_github_action():
+        #     pytest.skip('This is not working on GH actions')            # todo: figure out why the push is not working on GH actions, I think it is to do with the way the latest tag (i.e. version is applied)
         with self.create_image as _:
             result     = _.ecr_push_image()
             push_image = result.get('push_image')
@@ -108,3 +110,16 @@ class test_Nginx_In_Lambda__Create_Image(TestCase):
         assert folder_exists(path_source_files)
         assert folder_name  (path_source_files) == self.create_image.repository_name
         assert 'Dockerfile' in files_names(files_list(path_source_files, pattern='*'))
+
+    def test_path_nginx_index_file(self):
+        path_nginx_index_file = self.create_image.path_nginx_index_file()
+        assert file_exists(path_nginx_index_file)
+        assert 'Welcome to nginx!' in file_contents(path_nginx_index_file)
+
+    def test_update_nginx_index_with_current_version(self):
+        with self.create_image as _:
+            path_index_file = _.path_nginx_index_file()
+            updated_title   = _.value_of_index_html_updated_title()
+            updated_html    = _.update_nginx_index_with_current_version()
+            assert updated_title in updated_html
+            assert updated_title in file_contents(path_index_file)
