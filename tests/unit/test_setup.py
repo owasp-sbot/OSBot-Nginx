@@ -11,7 +11,11 @@ import osbot_nginx
 
 from osbot_nginx.utils.utils.Version import Version
 
-EXPECTED_PACKAGES = ['osbot_nginx']
+EXPECTED_PACKAGES = ['osbot_nginx'                             ,
+                     'osbot_nginx.docker'                      ,
+                     'osbot_nginx.docker.nginx_in_lambda__mvp' ,
+                     'osbot_nginx.utils'                       ,
+                     'osbot_nginx.utils.utils'                 ]
 
 class test_setup(TestCase):
 
