@@ -25,6 +25,7 @@ class test_Nginx_In_Lambda__Deploy_Lambda(TestCase):
 
     def test_invoke_lambda(self):
         raw_html  = self.nginx_deploy_lambda.invoke_lambda()
+        assert raw_html is not None
         html_dict = Html_To_Dict(raw_html ).convert()
         html_tags = Dict_To_Tags(html_dict).convert()
         version   = Version().value()

@@ -15,9 +15,12 @@ class Nginx_In_Lambda__Deploy_Lambda(Kwargs_To_Self):
     def util_deploy_lambda(self):
         account_id         = self.aws_config.account_id()
         region_name        = self.aws_config.region_name()
-        repository_tag     = Docker_Util__Nginx().container_tag__with_arch_and_version()
+        docker_util        = Docker_Util__Nginx()
+        architecture       = docker_util.docker_architecture()
+        repository_tag     = docker_util.container_tag__with_arch_and_version()
+        lambda_name        = f'{self.repository_name}__{architecture}'
         image_uri          = f'{account_id}.dkr.ecr.{region_name}.amazonaws.com/{self.repository_name}:{repository_tag}'
-        deploy_lambda      = Deploy_Lambda(self.repository_name)
+        deploy_lambda      = Deploy_Lambda(lambda_name)
         deploy_lambda.set_container_image(image_uri)
         if 'arm64' in repository_tag:                                   # update arch if arm64
             deploy_lambda.lambda_function().architecture = 'arm64'      # default is x86_64 (which is amd64)
@@ -28,7 +31,7 @@ class Nginx_In_Lambda__Deploy_Lambda(Kwargs_To_Self):
         #return util_deploy_lambda.lambda_function().create()
         update_result = util_deploy_lambda.package.update()
         if update_result:
-            last_update_status = util_deploy_lambda.lambda_function().wait_for_function_update_to_complete()
+            last_update_status = util_deploy_lambda.lambda_function().wait_for_function_update_to_complete(max_attempts=200)
             return last_update_status
 
     def invoke_lambda(self, path='/', return_logs=False):
