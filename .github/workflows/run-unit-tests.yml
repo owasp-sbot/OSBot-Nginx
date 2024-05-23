@@ -13,10 +13,11 @@ jobs:
       - name: Run Unit Tests
         uses: ./.github/actions/run-unit-tests
         with:
-          codecov_token         : ${{ secrets.CODECOV_TOKEN         }}
-          package_name          : ${{ secrets.PACKAGE_NAME          }}
-          aws_secret_access_key : ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_default_region    : ${{ secrets.AWS_DEFAULT_REGION    }}
-          aws_account_id        : ${{ secrets.AWS_ACCOUNT_ID        }}
-          aws_access_key_id     : ${{ secrets.AWS_ACCESS_KEY_ID     }}
+          codecov_token           : ${{ secrets.CODECOV_TOKEN         }}
+          package_name            : ${{ secrets.PACKAGE_NAME          }}
+          aws_secret_access_key   : ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_default_region      : ${{ secrets.AWS_DEFAULT_REGION    }}
+          aws_account_id          : ${{ secrets.AWS_ACCOUNT_ID        }}
+          aws_access_key_id       : ${{ secrets.AWS_ACCESS_KEY_ID     }}
+          ROUTE_53__HOST_ZONE_ID  : ${{ secrets.ROUTE_53__HOST_ZONE_ID     }}
 
