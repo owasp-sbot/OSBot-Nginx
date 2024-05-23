@@ -39,7 +39,7 @@ class test_Nginx_In_Lambda__Create_DNS_Record(TestCase):
             assert len(_.a_records()) > 0
 
     # note: at the moment this test doesn't wait for changes to be propagated since they can take quite a while (i.e. a couple minutes)
-    @pytest.mark.skip("needs active CF distribution")
+    #@pytest.mark.skip("needs active CF distribution")
     def test_create_a_record(self):
         target_cloud_front    = '...'       # todo: needs live CF distribution
         hosted_zone_id        = '...'
@@ -47,7 +47,7 @@ class test_Nginx_In_Lambda__Create_DNS_Record(TestCase):
 
         #logging = Logging().enable_log_to_console()
         with self.hosted_zone as _:
-            record_name = 'test-domain-2.' + self.root_domain
+            record_name = 'test-domain-4.' + self.root_domain
             create_kwargs = dict(record_name            = record_name        ,
                                  alias_target           = target_cloud_front   ,
                                  hosted_zone_id         = hosted_zone_id       ,
@@ -65,6 +65,7 @@ class test_Nginx_In_Lambda__Create_DNS_Record(TestCase):
             # assert dns_answer.get('ResponseCode') == 'NOERROR'
 
             #logging.info('Step 3: deleting record')
+
             delete_result = _.delete_record_set__a__to_alias(dns_entry=record_name, alias_dns_name=target_cloud_front, alias_hosted_zone_id=target_hosted_zone_id)
             assert delete_result.get('Status') == 'PENDING'
 
